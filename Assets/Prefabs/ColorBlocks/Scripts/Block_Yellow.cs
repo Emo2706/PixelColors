@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Block_Yellow : ColorBlock
+public class Block_Yellow : ColorBlock, IWarm
 {
     // Start is called before the first frame update
     

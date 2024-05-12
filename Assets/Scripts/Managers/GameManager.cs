@@ -14,8 +14,6 @@ public class GameManager : MonoBehaviour
         AlphabeticDescending,
         MostColorBlocksPainted,
        
-
-
     }
     public static GameManager instance;
     public List<ButtonPaletteBehaviour> AllButtons = new List<ButtonPaletteBehaviour>();
@@ -64,20 +62,20 @@ public class GameManager : MonoBehaviour
             SetProperButtonsPos(AvailableButtons, _buttonsPositions, CurrentAllBlocks2, OrderButtonsBy.MostColorBlocksPainted, currentLevelSettings);
         }
     }
-    void SetAllColorOptions()
+    void SetAllColorOptions(TMP_Dropdown dropdown)
     {
-        dropdownOptions.ClearOptions();
-        dropdownOptions.ClearOptions();
-        dropdownOptions.options.Add(new TMP_Dropdown.OptionData(text: "All blocks", null));
-        dropdownOptions.options.Add(new TMP_Dropdown.OptionData(text: "All painted blocks", null));
-        dropdownOptions.options.Add(new TMP_Dropdown.OptionData(text: "All unpainted blocks", null));
+        dropdown.ClearOptions();
+        dropdown.ClearOptions();
+        dropdown.options.Add(new TMP_Dropdown.OptionData(text: "All blocks", null));
+        dropdown.options.Add(new TMP_Dropdown.OptionData(text: "All painted blocks", null));
+        dropdown.options.Add(new TMP_Dropdown.OptionData(text: "All unpainted blocks", null));
 
         for (int i = 0; i < currentLevelSettings.levelStuff.Palette.Count ; i++)
         {
-            dropdownOptions.options.Add(new TMP_Dropdown.OptionData(text: currentLevelSettings.levelStuff.Palette[i].color_Name, null));
+            dropdown.options.Add(new TMP_Dropdown.OptionData(text: currentLevelSettings.levelStuff.Palette[i].color_Name, null));
         }
 
-        dropdownOptions.RefreshShownValue();
+        dropdown.RefreshShownValue();
     }
 
     // Update is called once per frame
@@ -96,16 +94,17 @@ public class GameManager : MonoBehaviour
 
 
         }
-        SetAllColorOptions();
-        SetMethodDictionary();
+        SetAllColorOptions(dropdownOptions);
+        SetMethodDictionary(showMethod);
         yield return new WaitForSeconds(0.03f);
 
         //SetProperButtonsPos(OrderByColorName(AvailableButtons, true), _buttonsPositions, OrderButtonsBy.Ids);
 
-        
     }
     void SetButtonsColors(List<ButtonPaletteBehaviour> buttonsP, List<ColorBlock> ColorsList)
     {
+        var list = IDS2(buttonsP);
+
         for (int i = 0; i < ColorsList.Count; i++)
         {
             
@@ -116,12 +115,29 @@ public class GameManager : MonoBehaviour
             buttonsP[i].idButton = i;
             buttonsP[i].belongingColorBlock = ColorsList[i];
             buttonsP[i].gameObject.transform.name = i.ToString();
-
+            buttonsP[i].idText.text = list[i].ToString();
 
         }
 
 
     }
+
+    List<int>IDS(List<ColorBlock> colorsList)
+    {
+        var list = colorsList.Select(x => x.ID).ToList();
+
+        return list;
+    }
+
+
+    List<int> IDS2(List<ButtonPaletteBehaviour> buttonsp)
+    {
+        var list = buttonsp.Select(x => x.idButton).ToList();
+
+        return list;
+    }
+
+
 
     /*ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA PREGUNTALEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
      * 
@@ -130,7 +146,7 @@ public class GameManager : MonoBehaviour
      * 
      * ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA PREGUNTALEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
      */
-   
+
     void SetProperButtonsPos(List<ButtonPaletteBehaviour> buttonsP, List<Vector3> positions, List<ListOfColorsBlock> colorsBlock , OrderButtonsBy order, LevelSettings lvs)
     {
 
@@ -182,6 +198,58 @@ public class GameManager : MonoBehaviour
 
 
 
+        #region Probar con switch
+        /* switch (order)
+        {
+            case OrderButtonsBy.Ids:
+
+                var col = buttonsP.OrderBy(x => x.idButton).ToList();
+
+                RTsTransform(col, positions);
+
+                break;
+            case OrderButtonsBy.Alphabetic:
+
+                var col2 = buttonsP.OrderBy(x => x.belongingColorBlock.color_Name).ToList();
+               
+                RTsTransform(col2, positions);
+
+                break;
+            case OrderButtonsBy.AlphabeticDescending:
+
+                var col3 = buttonsP.OrderByDescending(x => x.belongingColorBlock.color_Name).ToList();
+                
+                RTsTransform(col3, positions);
+
+                break;
+            case OrderButtonsBy.MostColorBlocksPainted:
+
+                var TupleList = new List<Tuple<ButtonPaletteBehaviour, List<ColorBlock>>>();
+                for (int i = 0; i < lvs.levelStuff.Palette.Count; i++)
+                {
+                    var myTuple = Tuple.Create(buttonsP[i], colorsBlock[i].colorList);
+
+                    TupleList.Add(myTuple);
+                }
+
+                var col4 = TupleList.Where(x => x.Item2.Any(x => !x.isPainted)).OrderBy(x => x.Item2.Where(x => !x.isPainted).Count()).ToList();
+                var finalList = new List<ButtonPaletteBehaviour>();
+                for (int i = 0; i < col4.Count; i++)
+                {
+                    finalList.Add(col4[i].Item1);
+
+                }
+                RTsTransform(finalList, positions);
+
+
+                break;
+            default:
+                break;
+        }*/
+        #endregion
+
+
+
     }
     
     void RTsTransform(List<ButtonPaletteBehaviour> col, List<Vector3> positions)
@@ -228,12 +296,15 @@ public class GameManager : MonoBehaviour
         
     }
 
-    //Remover SideEffects???
-    public void SetMethodDictionary()
+    
+    public void SetMethodDictionary(Dictionary<int , Action<List<ListOfColorsBlock>>> showMethod)
     {
         showMethod.Add(0, BlocksInTotal);
         showMethod.Add(1, BlocksPainted);
         showMethod.Add(2, BlocksUnpainted);
+        showMethod.Add(3, YellowBlocks);
+        showMethod.Add(4, BlueBlocks);
+        showMethod.Add(5, RedBlocks);
     }
 
     
@@ -258,6 +329,29 @@ public class GameManager : MonoBehaviour
         Debug.Log(BlocksUnPaintedInTotal);
 
     }
+
+    void RedBlocks(List<ListOfColorsBlock> listofBlocks)
+    {
+        var redBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Red>().Count();
+
+        Debug.Log(redBlocks);
+    }
+
+    void BlueBlocks(List<ListOfColorsBlock> listofBlocks)
+    {
+        var blueBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Blue>().Count();
+
+        Debug.Log(blueBlocks);
+    }
+
+
+    void YellowBlocks(List<ListOfColorsBlock> listofBlocks)
+    {
+        var yellowBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x=>!x.isPainted).OfType<Block_Yellow>().Count();
+
+        Debug.Log(yellowBlocks);
+    }
+
 
     public void ShowChosenBlocks(List<ListOfColorsBlock> listofblocks, int Option)
     {

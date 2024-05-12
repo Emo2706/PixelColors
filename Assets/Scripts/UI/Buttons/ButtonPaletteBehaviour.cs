@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine.UI;
 public class ButtonPaletteBehaviour : MonoBehaviour
 {
-    TMP_Text _idText;
+    public TMP_Text idText;
     [HideInInspector] public Color currentColor;
     public int idButton;
     [HideInInspector] public Image img;
@@ -15,7 +15,7 @@ public class ButtonPaletteBehaviour : MonoBehaviour
     {
         idButton = 99;
         GameManager.instance.AllButtons.Add(this);
-        _idText = gameObject.GetComponentInChildren<TMP_Text>();
+        idText = gameObject.GetComponentInChildren<TMP_Text>();
         img = gameObject.GetComponent<Image>();
         //img.color = currentColor;
     }
