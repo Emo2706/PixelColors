@@ -9,6 +9,8 @@ public class PlayerPaletteSelector : MonoBehaviour
     public int CurrentidColor;
     public List<Transform> ButtonsPlacements = new List<Transform>();
     public List<Color> Colores = new List<Color>();
+
+    public int howManyBlocksToPaintAuto;
     // Start is called before the first frame update
     private void Awake()
     {
@@ -19,7 +21,24 @@ public class PlayerPaletteSelector : MonoBehaviour
     }
     void Start()
     {
-        
+        howManyBlocksToPaintAuto = 1;
+    }
+
+    public void UpOrDown(bool up)
+    {
+        if (up)
+            howManyBlocksToPaintAuto++;
+        else
+        {
+            if(howManyBlocksToPaintAuto >= 1)
+                howManyBlocksToPaintAuto--;
+
+
+
+        }
+        HUD.instance.blocksToPaint.text = howManyBlocksToPaintAuto.ToString();
+
+
     }
 
     // Update is called once per frame
