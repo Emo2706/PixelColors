@@ -16,12 +16,12 @@ public class ButtonsExtraFunctions : MonoBehaviour
     public void HowManyBlocksAreLeft()
     {
         //GameManager.instance.HowManyBlocksLeft(GameManager.instance.CurrentAllBlocks2);
-        GameManager.instance.ShowChosenBlocks(GameManager.instance.CurrentAllBlocks2, currentOption);
+        GameManager.instance.ShowChosenBlocks(GameManager.instance.CurrentAllBlocks, currentOption);
     }
     public void PaintAutomatically()
     {
         GameManager.instance.PaintAutomatically(PlayerPaletteSelector.instance.CurrentidColor,
-            GameManager.instance.CurrentAllBlocks2, GameManager.instance.currentLevelSettings, PlayerPaletteSelector.instance.howManyBlocksToPaintAuto);
+            GameManager.instance.CurrentAllBlocks, GameManager.instance.currentLevelSettings, PlayerPaletteSelector.instance.howManyBlocksToPaintAuto);
     }
     public void OnOptionChange(TMPro.TMP_Dropdown dropdown)
     {

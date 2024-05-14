@@ -19,9 +19,7 @@ public class GameManager : MonoBehaviour
     public List<ButtonPaletteBehaviour> AllButtons = new List<ButtonPaletteBehaviour>();
     public List<ButtonPaletteBehaviour> AvailableButtons = new List<ButtonPaletteBehaviour>();
     public LevelSettings currentLevelSettings;
-    // public ListOfColorsBlock CurrentAllBlocks = new ListOfColorsBlock();
-    //public List<List<ColorBlock>> CurrentAllBlocks = new List<List<ColorBlock>>();
-    public List<ListOfColorsBlock> CurrentAllBlocks2 = new List<ListOfColorsBlock>();
+    public List<ListOfColorsBlock> CurrentAllBlocks = new List<ListOfColorsBlock>();
     public TMP_Dropdown dropdownOptions;
 
    [SerializeField] List<Vector3> _buttonsPositions;
@@ -40,9 +38,8 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < currentLevelSettings.levelStuff.Palette.Count; i++)
         {
            
-            //CurrentAllBlocks.Add(new List<ColorBlock>());
-            //CurrentAllBlocks2.col
-            CurrentAllBlocks2.Add(new ListOfColorsBlock());
+           
+            CurrentAllBlocks.Add(new ListOfColorsBlock());
         }
 
         
@@ -50,16 +47,15 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(CorroutineLateStart());
+        StartCoroutine(CorroutineLateStart(currentLevelSettings));
 
-        //PARA ACOMODAR LOS BOTONES POR ID SE PUEDE HACER QUE ORDENE DE MENOR A MAYOR LOS ID Y LUEGO QUE LO CONVIERTA EN UNA LISTA, Y DE AHÍ, RECORRA UN FOR DONDE SU TRANSFORM CAMBIE EN BASE A LA I DE UN ARRAY DE TRANSFORMS
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            SetProperButtonsPos(AvailableButtons, _buttonsPositions, CurrentAllBlocks2, OrderButtonsBy.MostColorBlocksPainted, currentLevelSettings);
+            SetProperButtonsPos(AvailableButtons, _buttonsPositions, CurrentAllBlocks, "MostBlockPainted", currentLevelSettings);
         }
     }
     void SetAllColorOptions(TMP_Dropdown dropdown)
@@ -69,6 +65,7 @@ public class GameManager : MonoBehaviour
         dropdown.options.Add(new TMP_Dropdown.OptionData(text: "All blocks", null));
         dropdown.options.Add(new TMP_Dropdown.OptionData(text: "All painted blocks", null));
         dropdown.options.Add(new TMP_Dropdown.OptionData(text: "All unpainted blocks", null));
+        dropdown.options.Add(new TMP_Dropdown.OptionData(text: "All primary colors block left", null));
 
         for (int i = 0; i < currentLevelSettings.levelStuff.Palette.Count ; i++)
         {
@@ -80,11 +77,22 @@ public class GameManager : MonoBehaviour
 
     // Update is called once per frame
    
-    IEnumerator CorroutineLateStart()
+    IEnumerator CorroutineLateStart(LevelSettings lvS)
     {
         yield return new WaitForSeconds(0.03f);
-        SetButtonsColors(AllButtons, currentLevelSettings.levelStuff.Palette);
-        for (int i = 0; i < AllButtons.Count; i++)
+        SetButtonsColors(AllButtons, lvS.levelStuff.Palette);
+
+        var availableButtons = AllButtons.TakeWhile(x => x.idButton <= lvS.levelStuff.Palette.Count).ToList();
+
+        AvailableButtons = availableButtons;
+
+        var UnAvailableButtons = AllButtons.SkipWhile(x => x.idButton <= lvS.levelStuff.Palette.Count).ToList();
+
+        foreach (var button in UnAvailableButtons)
+        {
+            button.gameObject.SetActive(false);
+        }
+        /*for (int i = 0; i < AllButtons.Count; i++)
         {
             if (i < currentLevelSettings.levelStuff.Palette.Count)
             {
@@ -93,7 +101,7 @@ public class GameManager : MonoBehaviour
             else AllButtons[i].gameObject.SetActive(false);
 
 
-        }
+        }*/
         SetAllColorOptions(dropdownOptions);
         SetMethodDictionary(showMethod);
         yield return new WaitForSeconds(0.03f);
@@ -115,12 +123,14 @@ public class GameManager : MonoBehaviour
             buttonsP[i].idButton = i;
             buttonsP[i].belongingColorBlock = ColorsList[i];
             buttonsP[i].gameObject.transform.name = i.ToString();
-            buttonsP[i].idText.text = list[i].ToString();
+            buttonsP[i].idText.text = i.ToString();
 
         }
 
 
     }
+
+
 
     List<int>IDS(List<ColorBlock> colorsList)
     {
@@ -129,6 +139,7 @@ public class GameManager : MonoBehaviour
         return list;
     }
 
+    
 
     List<int> IDS2(List<ButtonPaletteBehaviour> buttonsp)
     {
@@ -139,15 +150,9 @@ public class GameManager : MonoBehaviour
 
 
 
-    /*ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA PREGUNTALEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-     * 
-     * 
-     * ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA PREGUNTALEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-     * 
-     * ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA PREGUNTALEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-     */
+    
 
-    void SetProperButtonsPos(List<ButtonPaletteBehaviour> buttonsP, List<Vector3> positions, List<ListOfColorsBlock> colorsBlock , OrderButtonsBy order, LevelSettings lvs)
+    void SetProperButtonsPos(List<ButtonPaletteBehaviour> buttonsP, List<Vector3> positions, List<ListOfColorsBlock> colorsBlock , string order, LevelSettings lvs)
     {
 
         //int ButtonsAmount = buttonsP.Count();
@@ -155,25 +160,25 @@ public class GameManager : MonoBehaviour
         //var col = buttonsP.Take(ButtonsAmount).ToList();
         // var colu = buttonsP;
 
-        if (order == OrderButtonsBy.Ids)
+        if (order == "Ids")
         {
             var col = buttonsP.OrderBy(x => x.idButton).ToList();
 
             RTsTransform(col, positions);
         }
-        else if (order == OrderButtonsBy.Alphabetic)
+        else if (order == "Alphabetic")
         {
             var col = buttonsP.OrderBy(x => x.belongingColorBlock.color_Name).ToList();
             RTsTransform(col, positions);
 
         }
-        else if (order == OrderButtonsBy.AlphabeticDescending)
+        else if (order == "AlphabeticD")
         {
             var col = buttonsP.OrderByDescending(x => x.belongingColorBlock.color_Name).ToList();
             RTsTransform(col, positions);
 
         }
-        else if (order == OrderButtonsBy.MostColorBlocksPainted)
+        else if (order == "MostBlockPainted")
         {
             //La tupla fue necesaria para poder enlazar el botón con su respectiva lista de bloques de su mismo color
             var TupleList = new List<Tuple<ButtonPaletteBehaviour, List<ColorBlock>>>();
@@ -183,17 +188,47 @@ public class GameManager : MonoBehaviour
 
                 TupleList.Add(myTuple);
             }
-            //GUARDAR Y COMPARAR CON UNA TUPLA UNA TUPLAA
+
             //var col = colorsBlock.Where(x => x.colorList.Any(x => x.isPainted));
-            var col = TupleList.Where(x => x.Item2.Any(x => !x.isPainted)).OrderBy(x => x.Item2.Where(x => !x.isPainted).Count()).ToList();
+            //Poner then by
+            //var col = TupleList.Where(x => x.Item2.Any(x => !x.isPainted)).OrderBy(x => x.Item2.Where(x => !x.isPainted).Count()).ToList();
+            var col = TupleList.Where(x => x.Item2.Any(x => !x.isPainted)).OrderBy(x => x.Item2.Where(x => !x.isPainted).Count()).ThenBy(x => x.Item1.idButton).ToList();
             var finalList = new List<ButtonPaletteBehaviour>();
             for (int i = 0; i < col.Count; i++)
             {
                 finalList.Add(col[i].Item1);
+               
 
             }
             RTsTransform(finalList, positions);
             //var botonesAMostrar = buttonsP.Where(x => x.idButton == col.SelectMany(x => x.colorList).Any(x => x.ID));
+        }
+        else if (order == "WarmToCold")
+        {
+            var TupleList = new List<Tuple<ButtonPaletteBehaviour, ColorBlock>>();
+
+            for (int i = 0; i < lvs.levelStuff.Palette.Count; i++)
+            {
+                var myTuple = Tuple.Create(buttonsP[i], buttonsP[i].belongingColorBlock);
+
+                TupleList.Add(myTuple);
+            }
+
+            var warmColors = TupleList.OrderBy(x => x.Item2.howWarmColdIsIt).Where(x => x.Item2 is IWarm);
+            var ColdColors = TupleList.OrderBy(x => x.Item2.howWarmColdIsIt).Where(x => x.Item2 is ICold);
+            var AllTogetherInOrder = warmColors.Concat(ColdColors).ToList();
+
+            var finalList = new List<ButtonPaletteBehaviour>();
+            for (int i = 0; i < AllTogetherInOrder.Count; i++)
+            {
+                finalList.Add(AllTogetherInOrder[i].Item1);
+            }
+
+            RTsTransform(finalList, positions);
+
+            //var WarmColors = buttonsP.Where(x => x.belongingColorBlock).OfType<IWarm>();
+            //var test = buttonsP.Select(b => Tuple.Create<>)
+
         }
 
 
@@ -264,7 +299,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void HighlightAllSelected(int ID)
+    public void HighlightAllSelected(int ID, List<ListOfColorsBlock> listofblocks)
     {
         /*foreach (var Block in CurrentAllBlocks[ID]) MANERA VIEJAAAAAAAA
         {
@@ -273,11 +308,14 @@ public class GameManager : MonoBehaviour
             Block.HighlightBlockSelected();
         }*/
 
-        //RECORDAR QUITAR SIDE EFFECTS
-        var col = CurrentAllBlocks2.SelectMany(x => x.colorList).Where(x => x.ID == ID);
+        //RECORDAR QUITAR SIDE EFFECTS O NO CUENTAAA
+        var col = CurrentAllBlocks.SelectMany(x => x.colorList).Where(x => x.ID == ID && !x.isPainted).Select(x => x.spr);
         //Se puede recorrer con for/for each?
-
-        foreach (var Block in CurrentAllBlocks2[ID].colorList) 
+        foreach (var block in col)
+        {
+            block.color = GobalData.instance.highlightedColor;
+        }
+        foreach (var Block in CurrentAllBlocks[ID].colorList) 
         {
             //Acordarse de devolverlo al color anterior al elegir otro color
             //Fijarse si se puede reemplazar esto por una filtración con Where bool is false y que busque por su ID o algo así LOL
@@ -302,9 +340,8 @@ public class GameManager : MonoBehaviour
         showMethod.Add(0, BlocksInTotal);
         showMethod.Add(1, BlocksPainted);
         showMethod.Add(2, BlocksUnpainted);
-        showMethod.Add(3, YellowBlocks);
-        showMethod.Add(4, BlueBlocks);
-        showMethod.Add(5, RedBlocks);
+        showMethod.Add(3, HowManyPrimaryColorsBlocksLeft);
+       
     }
 
     
@@ -334,6 +371,8 @@ public class GameManager : MonoBehaviour
     {
         var redBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Red>().Count();
 
+        
+
         Debug.Log(redBlocks);
     }
 
@@ -350,6 +389,18 @@ public class GameManager : MonoBehaviour
         var yellowBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x=>!x.isPainted).OfType<Block_Yellow>().Count();
 
         Debug.Log(yellowBlocks);
+    }
+
+    void HowManyPrimaryColorsBlocksLeft(List<ListOfColorsBlock> listofBlocks)
+    {
+        var yellowBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Yellow>().Count();
+        var blueBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Blue>().Count();
+        var redBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Red>().Count();
+
+        int allPrimaryBlocks = yellowBlocks + blueBlocks + redBlocks;
+       //Text = allprimaryBlocks "in total" + yellowBlocks + " yellow blocks missing" + blueblocks etc etc
+
+
     }
 
 

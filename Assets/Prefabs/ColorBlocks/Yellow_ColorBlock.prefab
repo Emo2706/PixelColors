@@ -336,6 +336,7 @@ MonoBehaviour:
   color_Name: Amarillo
   brightnessLevel: 0
   isPainted: 0
+  howWarmColdIsIt: 5
   spr: {fileID: 0}
   ShowingDisplayText: {fileID: 4778781073943780367}
 --- !u!1 &5988695625478895976

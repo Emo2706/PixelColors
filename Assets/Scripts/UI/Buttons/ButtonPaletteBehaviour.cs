@@ -29,7 +29,7 @@ public class ButtonPaletteBehaviour : MonoBehaviour
     public void SelectColor()
     {
         PlayerPaletteSelector.instance.CurrentidColor = idButton;
-        GameManager.instance.HighlightAllSelected(idButton);
+        GameManager.instance.HighlightAllSelected(idButton, GameManager.instance.CurrentAllBlocks);
     }
 
 

@@ -4,5 +4,8 @@ using UnityEngine;
 
 public interface IWarm 
 {
-    
+    public void Paint()
+    {
+
+    }
 }

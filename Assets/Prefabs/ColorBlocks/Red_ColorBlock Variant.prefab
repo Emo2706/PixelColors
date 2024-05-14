@@ -95,6 +95,7 @@ MonoBehaviour:
   color_Name: Rojo
   brightnessLevel: 0
   isPainted: 0
+  howWarmColdIsIt: 1
   spr: {fileID: 0}
   ShowingDisplayText: {fileID: 4164675582441048177}
 --- !u!114 &4164675582441048177 stripped

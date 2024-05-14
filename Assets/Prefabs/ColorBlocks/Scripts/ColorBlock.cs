@@ -10,6 +10,7 @@ public abstract class ColorBlock : MonoBehaviour
     public string color_Name;
     public int brightnessLevel;
     [HideInInspector] public bool isPainted;
+    public int howWarmColdIsIt;
 
     [HideInInspector] public SpriteRenderer spr;
     [SerializeField] TMP_Text ShowingDisplayText;
@@ -53,7 +54,7 @@ public abstract class ColorBlock : MonoBehaviour
                 //GameManager.instance.CurrentAllBlocks.colorsList[i].block.Add(this);
 
                 //GameManager.instance.CurrentAllBlocks[i].Add(this);
-                GameManager.instance.CurrentAllBlocks2[i].colorList.Add(this);
+                GameManager.instance.CurrentAllBlocks[i].colorList.Add(this);
                 ID = i;
                 ShowingDisplayText.text = ID.ToString();
             }

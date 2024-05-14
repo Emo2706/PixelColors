@@ -118,5 +118,6 @@ MonoBehaviour:
   color_Name: Azul
   brightnessLevel: 0
   isPainted: 0
+  howWarmColdIsIt: 1
   spr: {fileID: 0}
   ShowingDisplayText: {fileID: 4870904883807694479}
