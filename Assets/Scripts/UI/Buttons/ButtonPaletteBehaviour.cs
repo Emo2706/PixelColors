@@ -30,6 +30,7 @@ public class ButtonPaletteBehaviour : MonoBehaviour
     {
         PlayerPaletteSelector.instance.CurrentidColor = idButton;
         GameManager.instance.HighlightAllSelected(idButton, GameManager.instance.CurrentAllBlocks);
+        GameManager.instance.ColorPercentage(GameManager.instance.CurrentAllBlocks, belongingColorBlock);
     }
 
 

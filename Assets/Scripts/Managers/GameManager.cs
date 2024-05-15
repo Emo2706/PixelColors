@@ -56,6 +56,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             SetProperButtonsPos(AvailableButtons, _buttonsPositions, CurrentAllBlocks, "MostBlockPainted", currentLevelSettings);
+            PixelArtPercentageCompletition(CurrentAllBlocks);
         }
     }
     void SetAllColorOptions(TMP_Dropdown dropdown)
@@ -111,7 +112,7 @@ public class GameManager : MonoBehaviour
     }
     void SetButtonsColors(List<ButtonPaletteBehaviour> buttonsP, List<ColorBlock> ColorsList)
     {
-        var list = IDS2(buttonsP);
+        
 
         for (int i = 0; i < ColorsList.Count; i++)
         {
@@ -189,9 +190,7 @@ public class GameManager : MonoBehaviour
                 TupleList.Add(myTuple);
             }
 
-            //var col = colorsBlock.Where(x => x.colorList.Any(x => x.isPainted));
-            //Poner then by
-            //var col = TupleList.Where(x => x.Item2.Any(x => !x.isPainted)).OrderBy(x => x.Item2.Where(x => !x.isPainted).Count()).ToList();
+            
             var col = TupleList.Where(x => x.Item2.Any(x => !x.isPainted)).OrderBy(x => x.Item2.Where(x => !x.isPainted).Count()).ThenBy(x => x.Item1.idButton).ToList();
             var finalList = new List<ButtonPaletteBehaviour>();
             for (int i = 0; i < col.Count; i++)
@@ -201,7 +200,7 @@ public class GameManager : MonoBehaviour
 
             }
             RTsTransform(finalList, positions);
-            //var botonesAMostrar = buttonsP.Where(x => x.idButton == col.SelectMany(x => x.colorList).Any(x => x.ID));
+           
         }
         else if (order == "WarmToCold")
         {
@@ -391,6 +390,8 @@ public class GameManager : MonoBehaviour
         Debug.Log(yellowBlocks);
     }
 
+    
+
     void HowManyPrimaryColorsBlocksLeft(List<ListOfColorsBlock> listofBlocks)
     {
         var yellowBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Yellow>().Count();
@@ -401,6 +402,58 @@ public class GameManager : MonoBehaviour
        //Text = allprimaryBlocks "in total" + yellowBlocks + " yellow blocks missing" + blueblocks etc etc
 
 
+    }
+
+    void PixelArtPercentageCompletition(List<ListOfColorsBlock> listofBlocks)
+    {
+        var seed = Tuple.Create(0,0,0);
+        //var acum = Tuple.Create(0, 0, 0);
+
+        var percentage = listofBlocks.SelectMany(x => x.colorList).Aggregate(seed, (acum, current) =>
+         {
+             int BlocksInTotal = acum.Item1 + 1;
+             int PaintedBlocks = acum.Item2;
+             int UnPaintedBlocks = acum.Item3;
+             if (current.isPainted)
+             {
+                 PaintedBlocks++;
+             }
+             else UnPaintedBlocks++;
+
+             acum = Tuple.Create(BlocksInTotal, PaintedBlocks, UnPaintedBlocks);
+             return acum;
+         });
+
+
+       
+       
+    }
+
+    //AGREGARLO A LA UIIII
+    public float ColorPercentage(List<ListOfColorsBlock> listofBlocks, ColorBlock colorChosen)
+    {
+        var seed = Tuple.Create(0, 0, 0);
+        var ColorStatistics = listofBlocks.SelectMany(x => x.colorList).Where(x => x.GetType() == colorChosen.GetType())
+            .Aggregate(seed, (acum, current) =>
+            {
+                int ColorBlocksIntotal = acum.Item1 + 1;
+                int PaintedBlocks = acum.Item2;
+                int UnPaintedBlocks = acum.Item3;
+                if (current.isPainted)
+                {
+                    PaintedBlocks++;
+                }
+                else UnPaintedBlocks++;
+
+                acum = Tuple.Create(ColorBlocksIntotal, PaintedBlocks, UnPaintedBlocks);
+
+                return acum;
+            });
+
+        float percentageColorDone = ((float)ColorStatistics.Item2 / (float)ColorStatistics.Item1) * 100;
+        //AGREGARLO A LA UIIIIIIIIIIIIIIII
+        Debug.Log(percentageColorDone);
+        return 1;
     }
 
 
