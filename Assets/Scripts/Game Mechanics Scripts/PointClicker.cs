@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PointClicker : MonoBehaviour
 {
-   
+  
     // Start is called before the first frame update
     void Start()
     {
@@ -16,11 +16,11 @@ public class PointClicker : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-            ClickBlock(PlayerPaletteSelector.instance.CurrentidColor);
+            ClickBlock(PlayerPaletteSelector.instance.CurrentidColor, GameManager.instance.AvailableButtons, GameManager.instance.CurrentAllBlocks);
         }
     }
 
-    void ClickBlock(int ID)
+    void ClickBlock(int ID, List<ButtonPaletteBehaviour> buttonsP, List<ListOfColorsBlock> Allblocks)
     {
         Vector2 clickPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         RaycastHit2D hit;
@@ -31,11 +31,13 @@ public class PointClicker : MonoBehaviour
             {
                 if (block.ID == ID)
                 {
-                    block.Paint();
+                    PlayerPaletteSelector.instance.PaintBlock(block);
+                   
+                    GameManager.instance.ReturnSliderBarOfButton(buttonsP, ID).value =
+                        GameManager.instance.ColorPercentage(Allblocks, block);
 
                 }
             }
-            Debug.Log(hit.collider.gameObject.name);
         }
         
 

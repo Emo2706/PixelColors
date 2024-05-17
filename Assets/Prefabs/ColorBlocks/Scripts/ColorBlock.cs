@@ -13,7 +13,7 @@ public abstract class ColorBlock : MonoBehaviour
     public int howWarmColdIsIt;
 
     [HideInInspector] public SpriteRenderer spr;
-    [SerializeField] TMP_Text ShowingDisplayText;
+    public TMP_Text ShowingDisplayText;
     // Start is called before the first frame update
     protected virtual void Start()
     {

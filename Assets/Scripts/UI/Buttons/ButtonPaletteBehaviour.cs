@@ -10,6 +10,8 @@ public class ButtonPaletteBehaviour : MonoBehaviour
     public int idButton;
     [HideInInspector] public Image img;
      public ColorBlock belongingColorBlock;
+    public Slider colorPercentage;
+    public List<int> InWhatNumberShouldICalculateMyPercentage = new List<int>();
     // Start is called before the first frame update
     void Start()
     {
@@ -18,6 +20,7 @@ public class ButtonPaletteBehaviour : MonoBehaviour
         idText = gameObject.GetComponentInChildren<TMP_Text>();
         img = gameObject.GetComponent<Image>();
         //img.color = currentColor;
+        //InWhatNumberShouldICalculateMyPercentage = GameManager.instance.ReturnCheckPointsofPercentage(belongingColorBlock, GameManager.instance.CurrentAllBlocks, 5);
     }
 
     // Update is called once per frame
@@ -29,7 +32,7 @@ public class ButtonPaletteBehaviour : MonoBehaviour
     public void SelectColor()
     {
         PlayerPaletteSelector.instance.CurrentidColor = idButton;
-        GameManager.instance.HighlightAllSelected(idButton, GameManager.instance.CurrentAllBlocks);
+        GameManager.instance.HighlightAllSelected(idButton, GameManager.instance.CurrentAllBlocks, GobalData.instance.highlightedColor);
         GameManager.instance.ColorPercentage(GameManager.instance.CurrentAllBlocks, belongingColorBlock);
     }
 

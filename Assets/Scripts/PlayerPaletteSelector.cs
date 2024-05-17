@@ -41,6 +41,15 @@ public class PlayerPaletteSelector : MonoBehaviour
 
     }
 
+    public void PaintBlock(ColorBlock block)
+    {
+        block.isPainted = true;
+        var spr = block.GetComponent<SpriteRenderer>();
+        spr.color = block.color;
+        block.ShowingDisplayText.gameObject.SetActive(false);
+        //Acá tmb llamaría a un tmp_text que tiene el bloque, etc etc
+    }
+
     // Update is called once per frame
     void Update()
     {

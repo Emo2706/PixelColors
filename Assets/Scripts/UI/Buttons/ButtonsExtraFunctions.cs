@@ -22,11 +22,22 @@ public class ButtonsExtraFunctions : MonoBehaviour
     {
         GameManager.instance.PaintAutomatically(PlayerPaletteSelector.instance.CurrentidColor,
             GameManager.instance.CurrentAllBlocks, GameManager.instance.currentLevelSettings, PlayerPaletteSelector.instance.howManyBlocksToPaintAuto);
+
+        GameManager.instance.ReturnSliderBarOfButton(GameManager.instance.AvailableButtons, PlayerPaletteSelector.instance.CurrentidColor).value =
+                        GameManager.instance.ColorPercentage(GameManager.instance.CurrentAllBlocks, GameManager.instance.currentLevelSettings.levelStuff.Palette[PlayerPaletteSelector.instance.CurrentidColor]);
     }
     public void OnOptionChange(TMPro.TMP_Dropdown dropdown)
     {
         int OptionChosen = dropdown.value;
         //_currentMethod = showMethod[OptionChosen];
         currentOption = OptionChosen;
+    }
+
+    public void OrderPalette(string orderBy)
+    {
+        GameManager.instance.SetProperButtonsPos(GameManager.instance.AvailableButtons, 
+            GameManager.instance._buttonsPositions,GameManager.instance.CurrentAllBlocks, orderBy, 
+            GameManager.instance.currentLevelSettings);
+
     }
 }

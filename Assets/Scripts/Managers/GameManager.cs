@@ -7,14 +7,7 @@ using TMPro;
 using System;
 public class GameManager : MonoBehaviour
 {
-    public enum OrderButtonsBy
-    {
-        Ids,
-        Alphabetic,
-        AlphabeticDescending,
-        MostColorBlocksPainted,
-       
-    }
+    
     public static GameManager instance;
     public List<ButtonPaletteBehaviour> AllButtons = new List<ButtonPaletteBehaviour>();
     public List<ButtonPaletteBehaviour> AvailableButtons = new List<ButtonPaletteBehaviour>();
@@ -22,7 +15,7 @@ public class GameManager : MonoBehaviour
     public List<ListOfColorsBlock> CurrentAllBlocks = new List<ListOfColorsBlock>();
     public TMP_Dropdown dropdownOptions;
 
-   [SerializeField] List<Vector3> _buttonsPositions;
+   [SerializeField] public List<Vector3> _buttonsPositions;
 
     Dictionary<int, Action<List<ListOfColorsBlock>>> showMethod = new Dictionary<int, Action<List<ListOfColorsBlock>>>();
 
@@ -47,26 +40,19 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(CorroutineLateStart(currentLevelSettings));
+        StartCoroutine(CorroutineLateStart(currentLevelSettings, AllButtons, AvailableButtons));
 
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            SetProperButtonsPos(AvailableButtons, _buttonsPositions, CurrentAllBlocks, "MostBlockPainted", currentLevelSettings);
-            PixelArtPercentageCompletition(CurrentAllBlocks);
-        }
+       
     }
     void SetAllColorOptions(TMP_Dropdown dropdown)
     {
         dropdown.ClearOptions();
         dropdown.ClearOptions();
-        dropdown.options.Add(new TMP_Dropdown.OptionData(text: "All blocks", null));
-        dropdown.options.Add(new TMP_Dropdown.OptionData(text: "All painted blocks", null));
-        dropdown.options.Add(new TMP_Dropdown.OptionData(text: "All unpainted blocks", null));
-        dropdown.options.Add(new TMP_Dropdown.OptionData(text: "All primary colors block left", null));
+       
 
         for (int i = 0; i < currentLevelSettings.levelStuff.Palette.Count ; i++)
         {
@@ -78,36 +64,26 @@ public class GameManager : MonoBehaviour
 
     // Update is called once per frame
    
-    IEnumerator CorroutineLateStart(LevelSettings lvS)
+    IEnumerator CorroutineLateStart(LevelSettings lvS, List<ButtonPaletteBehaviour> buttonsP, List<ButtonPaletteBehaviour> avButtons)
     {
         yield return new WaitForSeconds(0.03f);
-        SetButtonsColors(AllButtons, lvS.levelStuff.Palette);
+        SetButtonsColors(buttonsP, lvS.levelStuff.Palette);
 
-        var availableButtons = AllButtons.TakeWhile(x => x.idButton <= lvS.levelStuff.Palette.Count).ToList();
+        var availableButtons = buttonsP.TakeWhile(x => x.idButton <= lvS.levelStuff.Palette.Count).ToList();
 
         AvailableButtons = availableButtons;
 
-        var UnAvailableButtons = AllButtons.SkipWhile(x => x.idButton <= lvS.levelStuff.Palette.Count).ToList();
+        var UnAvailableButtons = buttonsP.SkipWhile(x => x.idButton <= lvS.levelStuff.Palette.Count).ToList();
 
         foreach (var button in UnAvailableButtons)
         {
             button.gameObject.SetActive(false);
         }
-        /*for (int i = 0; i < AllButtons.Count; i++)
-        {
-            if (i < currentLevelSettings.levelStuff.Palette.Count)
-            {
-                AvailableButtons.Add(AllButtons[i]);
-            }
-            else AllButtons[i].gameObject.SetActive(false);
-
-
-        }*/
+       
         SetAllColorOptions(dropdownOptions);
-        SetMethodDictionary(showMethod);
+        SetProperButtonsPos(AvailableButtons, _buttonsPositions, CurrentAllBlocks, "Ids", lvS);
         yield return new WaitForSeconds(0.03f);
 
-        //SetProperButtonsPos(OrderByColorName(AvailableButtons, true), _buttonsPositions, OrderButtonsBy.Ids);
 
     }
     void SetButtonsColors(List<ButtonPaletteBehaviour> buttonsP, List<ColorBlock> ColorsList)
@@ -117,7 +93,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < ColorsList.Count; i++)
         {
             
-            Debug.Log(i);
+           
             //buttonsP[i].currentColor = lvS.levelStuff.Palette[i].color;
             buttonsP[i].currentColor = ColorsList[i].color;
             buttonsP[i].img.color = ColorsList[i].color;
@@ -132,34 +108,10 @@ public class GameManager : MonoBehaviour
     }
 
 
-
-    List<int>IDS(List<ColorBlock> colorsList)
-    {
-        var list = colorsList.Select(x => x.ID).ToList();
-
-        return list;
-    }
-
-    
-
-    List<int> IDS2(List<ButtonPaletteBehaviour> buttonsp)
-    {
-        var list = buttonsp.Select(x => x.idButton).ToList();
-
-        return list;
-    }
-
-
-
-    
-
-    void SetProperButtonsPos(List<ButtonPaletteBehaviour> buttonsP, List<Vector3> positions, List<ListOfColorsBlock> colorsBlock , string order, LevelSettings lvs)
+    public void SetProperButtonsPos(List<ButtonPaletteBehaviour> buttonsP, List<Vector3> positions, List<ListOfColorsBlock> colorsBlock , string order, LevelSettings lvs)
     {
 
-        //int ButtonsAmount = buttonsP.Count();
-        //El take está pq seguramente dsp hagamos que se pueda filtrar la paleta por colores tono tipo rojo, azul amarillo etc
-        //var col = buttonsP.Take(ButtonsAmount).ToList();
-        // var colu = buttonsP;
+       
 
         if (order == "Ids")
         {
@@ -191,12 +143,12 @@ public class GameManager : MonoBehaviour
             }
 
             
-            var col = TupleList.Where(x => x.Item2.Any(x => !x.isPainted)).OrderBy(x => x.Item2.Where(x => !x.isPainted).Count()).ThenBy(x => x.Item1.idButton).ToList();
+            var col = TupleList.Where(x => x.Item2.Any(x => !x.isPainted)).OrderByDescending(x => x.Item2.Where(x => !x.isPainted).Count()).ThenBy(x => x.Item1.idButton).ToList();
             var finalList = new List<ButtonPaletteBehaviour>();
             for (int i = 0; i < col.Count; i++)
             {
                 finalList.Add(col[i].Item1);
-               
+                //Debug.Log(col[i].Item1.gameObject.name.ToString() + col[i].Item2.SelectMany(x => x.color_Name).FirstOrDefault().ToString()); ;
 
             }
             RTsTransform(finalList, positions);
@@ -212,10 +164,12 @@ public class GameManager : MonoBehaviour
 
                 TupleList.Add(myTuple);
             }
-
+            //Acordarse de ordenar tmb los colores ni calidos ni frios bro
             var warmColors = TupleList.OrderBy(x => x.Item2.howWarmColdIsIt).Where(x => x.Item2 is IWarm);
             var ColdColors = TupleList.OrderBy(x => x.Item2.howWarmColdIsIt).Where(x => x.Item2 is ICold);
-            var AllTogetherInOrder = warmColors.Concat(ColdColors).ToList();
+            var NeutralColors = TupleList.Where(x => x.Item2 is not ICold && x.Item2 is not IWarm);
+            
+            var AllTogetherInOrder = warmColors.Concat(ColdColors.Concat(NeutralColors)).ToList();
 
             var finalList = new List<ButtonPaletteBehaviour>();
             for (int i = 0; i < AllTogetherInOrder.Count; i++)
@@ -298,118 +252,46 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void HighlightAllSelected(int ID, List<ListOfColorsBlock> listofblocks)
+    public void HighlightAllSelected(int ID, List<ListOfColorsBlock> listofblocks, Color colorHightlight)
     {
-        /*foreach (var Block in CurrentAllBlocks[ID]) MANERA VIEJAAAAAAAA
-        {
-            //Acordarse de devolverlo al color anterior al elegir otro color
-            //Fijarse si se puede reemplazar esto por una filtración con Where bool is false y que busque por su ID o algo así LOL
-            Block.HighlightBlockSelected();
-        }*/
-
-        //RECORDAR QUITAR SIDE EFFECTS O NO CUENTAAA
-        var col = CurrentAllBlocks.SelectMany(x => x.colorList).Where(x => x.ID == ID && !x.isPainted).Select(x => x.spr);
-        //Se puede recorrer con for/for each?
+       
+        var col = listofblocks.SelectMany(x => x.colorList).Where(x => x.ID == ID && !x.isPainted).Select(x => x.spr);
+       
         foreach (var block in col)
         {
-            block.color = GobalData.instance.highlightedColor;
+            block.color = colorHightlight;
         }
-        foreach (var Block in CurrentAllBlocks[ID].colorList) 
-        {
-            //Acordarse de devolverlo al color anterior al elegir otro color
-            //Fijarse si se puede reemplazar esto por una filtración con Where bool is false y que busque por su ID o algo así LOL
-            Block.HighlightBlockSelected();
-        }
-
-    }
-
-    //Es imposible hacer esto sin sideEffects si lo quiero llamar desde un botón
-    public void HowManyBlocksLeft(List<ListOfColorsBlock> listofblocks)
-    {
-        //var SM = listofblocks.SelectMany(x => x.All<ColorBlock>());
-        var SelectMany = listofblocks.SelectMany(x => x.colorList).Count();
-
-        Debug.Log(SelectMany);
-        
-    }
-
-    
-    public void SetMethodDictionary(Dictionary<int , Action<List<ListOfColorsBlock>>> showMethod)
-    {
-        showMethod.Add(0, BlocksInTotal);
-        showMethod.Add(1, BlocksPainted);
-        showMethod.Add(2, BlocksUnpainted);
-        showMethod.Add(3, HowManyPrimaryColorsBlocksLeft);
        
+
     }
 
     
 
-    void BlocksInTotal(List<ListOfColorsBlock> listofBlocks)
-    {
-        var SelectMany = listofBlocks.SelectMany(x => x.colorList).Count();
-
-        Debug.Log(SelectMany);
-    }
-
-    void BlocksPainted(List<ListOfColorsBlock> listofBlocks)
-    {
-        var BlocksPaintedInTotal = listofBlocks.SelectMany(x => x.colorList).Where(x => x.isPainted).Count();
-
-        Debug.Log(BlocksPaintedInTotal);
-
-    }
-    void BlocksUnpainted(List<ListOfColorsBlock> listofBlocks)
-    {
-        var BlocksUnPaintedInTotal = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).Count();
-        Debug.Log(BlocksUnPaintedInTotal);
-
-    }
-
-    void RedBlocks(List<ListOfColorsBlock> listofBlocks)
-    {
-        var redBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Red>().Count();
-
-        
-
-        Debug.Log(redBlocks);
-    }
-
-    void BlueBlocks(List<ListOfColorsBlock> listofBlocks)
-    {
-        var blueBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Blue>().Count();
-
-        Debug.Log(blueBlocks);
-    }
-
-
-    void YellowBlocks(List<ListOfColorsBlock> listofBlocks)
-    {
-        var yellowBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x=>!x.isPainted).OfType<Block_Yellow>().Count();
-
-        Debug.Log(yellowBlocks);
-    }
-
     
 
-    void HowManyPrimaryColorsBlocksLeft(List<ListOfColorsBlock> listofBlocks)
+    public Tuple <int,int,int> HowManyPrimaryColorsBlocksLeft(List<ListOfColorsBlock> listofBlocks)
     {
-        var yellowBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Yellow>().Count();
-        var blueBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Blue>().Count();
-        var redBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => !x.isPainted).OfType<Block_Red>().Count();
+        var yellowBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => x.isPainted).OfType<Block_Yellow>().Count();
+        var blueBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => x.isPainted).OfType<Block_Blue>().Count();
+        var redBlocks = listofBlocks.SelectMany(x => x.colorList).Where(x => x.isPainted).OfType<Block_Red>().Count();
 
-        int allPrimaryBlocks = yellowBlocks + blueBlocks + redBlocks;
+        return Tuple.Create(yellowBlocks, blueBlocks, redBlocks);
        //Text = allprimaryBlocks "in total" + yellowBlocks + " yellow blocks missing" + blueblocks etc etc
 
 
     }
-
-    void PixelArtPercentageCompletition(List<ListOfColorsBlock> listofBlocks)
+    public Slider ReturnSliderBarOfButton(List<ButtonPaletteBehaviour> buttonsP, int id)
     {
-        var seed = Tuple.Create(0,0,0);
+        var slider = buttonsP.Where(x => x.idButton == id).Select(x => x.colorPercentage).FirstOrDefault();
+        return slider;
+    }
+    
+    public Tuple<int,int,int> PixelArtStatistics(List<ListOfColorsBlock> listofBlocks)
+    {
+        
         //var acum = Tuple.Create(0, 0, 0);
 
-        var percentage = listofBlocks.SelectMany(x => x.colorList).Aggregate(seed, (acum, current) =>
+        var Statitstics = listofBlocks.SelectMany(x => x.colorList).Aggregate(Tuple.Create(0, 0, 0), (acum, current) =>
          {
              int BlocksInTotal = acum.Item1 + 1;
              int PaintedBlocks = acum.Item2;
@@ -424,12 +306,11 @@ public class GameManager : MonoBehaviour
              return acum;
          });
 
-
+        return Statitstics;
        
        
     }
-
-    //AGREGARLO A LA UIIII
+   
     public float ColorPercentage(List<ListOfColorsBlock> listofBlocks, ColorBlock colorChosen)
     {
         var seed = Tuple.Create(0, 0, 0);
@@ -450,10 +331,9 @@ public class GameManager : MonoBehaviour
                 return acum;
             });
 
-        float percentageColorDone = ((float)ColorStatistics.Item2 / (float)ColorStatistics.Item1) * 100;
+        float percentageColorDone = ((float)ColorStatistics.Item2 / (float)ColorStatistics.Item1);
         //AGREGARLO A LA UIIIIIIIIIIIIIIII
-        Debug.Log(percentageColorDone);
-        return 1;
+        return percentageColorDone;
     }
 
 
@@ -469,22 +349,44 @@ public class GameManager : MonoBehaviour
         if (BlocksamountToPaint == 1)
         {
 
-            var col = listofblocks.SelectMany(x => x.colorList)
+          var block = listofblocks.SelectMany(x => x.colorList)
                 .Where(x => x.GetType() == lvS.levelStuff.Palette[idToPaint].GetType() && !x.isPainted)
                 .FirstOrDefault();
-            col.Paint();
+            if (!block) return;
+            PlayerPaletteSelector.instance.PaintBlock(block);
+
+
+           
         }
         else
         {
+
             var col = listofblocks.SelectMany(x => x.colorList)
                 .Where(x => x.GetType() == lvS.levelStuff.Palette[idToPaint].GetType() && !x.isPainted)
                 .Take(BlocksamountToPaint);
             foreach (var Block in col)
             {
-                Block.Paint();
+                if (!Block) return;
+                PlayerPaletteSelector.instance.PaintBlock(Block);
             }
         }
         
+
+    }
+
+    public List<int> ReturnCheckPointsofPercentage(ColorBlock colorblock, List<ListOfColorsBlock> listofblocks, int divideInSuchAmount)
+    {
+        int seed = 0;
+        var array = new int[divideInSuchAmount];
+        var BlocksOfThistypeAmount = listofblocks.SelectMany(x => x.colorList).Where(x => x.GetType() == colorblock.GetType()).Count();
+        /*var finalList = array.Aggregate(seed, (acum, current) =>
+         {
+             current 
+
+             return acum;
+         });
+        */
+       return array.ToList();
 
     }
 }
